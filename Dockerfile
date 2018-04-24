@@ -44,8 +44,11 @@ RUN adduser -h /home/${UNPRIVILEDGED_USER} -D -G users -s /bin/sh ${UNPRIVILEDGE
 RUN chown ${UNPRIVILEDGED_USER}:users -R ${CWD}
 
 # kops
-ADD elf/kops /usr/local/bin/kops
-RUN chmod +x /usr/local/bin/kops
+#ADD elf/kops /usr/local/bin/kops
+#RUN chmod +x /usr/local/bin/kops
+RUN wget -O kops https://github.com/kubernetes/kops/releases/download/$(curl -s https://api.github.com/repos/kubernetes/kops/releases/latest | grep tag_name | cut -d '"' -f 4)/kops-linux-amd64
+&& chmod +x ./kops
+&& sudo mv ./kops /usr/local/bin/
 
 # RUN apk add --no-cache --update ca-certificates vim curl jq && \
 #     KOPS_URL=$(curl -s https://api.github.com/repos/kubernetes/kops/releases/${KOPS_RELEASE_ID} | jq -r ".assets[] | select(.name == \"kops-linux-amd64\") | .browser_download_url") && \
