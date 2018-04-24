@@ -1,22 +1,26 @@
-FROM alpine:3.6
+FROM alpine:latest
 MAINTAINER "Stefan Cocora <stefan.cocora@googlemail.com>"
 
 # inspired by
 # https://github.com/hashicorp/docker-hub-images/blob/master/terraform/Dockerfile-light
 # https://github.com/wernight/docker-kubectl/blob/master/Dockerfile
 # https://github.com/lachie83/k8s-helm/blob/v2.6.1/Dockerfile
-
-ENV AWSCLI_VERSION="1.11.185"
-ENV TERRAFORM_VERSION=0.10.8
-ENV TERRAFORM_SHA256SUM=b786c0cf936e24145fad632efd0fe48c831558cc9e43c071fffd93f35e3150db
+ARG awscli-version
+ARG terraform-version
+ARG kubectl-version
+ARG helm-version
+ARG yaml-version
+ENV AWSCLI_VERSION=${awscli-version:-v1.15.7}
+ENV TERRAFORM_VERSION=${terraform-version:-v0.11.7}
+# ENV TERRAFORM_SHA256SUM=b786c0cf936e24145fad632efd0fe48c831558cc9e43c071fffd93f35e3150db
 ENV TOOLSET_NAME="kops-tools"
 ENV CWD="/${TOOLSET_NAME}"
 ENV UNPRIVILEDGED_USER="kops"
-ENV KUBECTL_VERSION="v1.8.2"
-ENV HELM_VERSION="v2.6.2"
-ENV YAML_VERSION=1.13.1
+ENV KUBECTL_VERSION=${kubectl-version:-vv1.10.1}
+ENV HELM_VERSION=${helm-version:-vv2.8.2}
+ENV YAML_VERSION=${yaml-version:-v1.13.1}
 ENV YAML_SHASUM=28308a7231905030a62f20c92d41513e570d24f1984c1864198cbc4e039d3bec
-ENV KOPS_RELEASE_ID=8410205
+# ENV KOPS_RELEASE_ID=8410205
 
 
 RUN apk add --update --no-cache bash ca-certificates coreutils git jq make py2-pip util-linux openssh openssl tree
@@ -25,7 +29,7 @@ RUN apk add --update --no-cache bash ca-certificates coreutils git jq make py2-p
 # install terraform
 # ADD commands are not cached by docker, using wget
 RUN wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip -O terraform_${TERRAFORM_VERSION}_linux_amd64.zip
-RUN wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_SHA256SUMS -O  terraform_${TERRAFORM_VERSION}_SHA256SUMS
+# RUN wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_SHA256SUMS -O  terraform_${TERRAFORM_VERSION}_SHA256SUMS
 # RUN echo "${TERRAFORM_SHA256SUM}  terraform_${TERRAFORM_VERSION}_linux_amd64.zip" > terraform_${TERRAFORM_VERSION}_SHA256SUMS && sha256sum -cs terraform_${TERRAFORM_VERSION}_SHA256SUMS
 RUN unzip -o terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d /bin
 RUN rm -f terraform_${TERRAFORM_VERSION}_linux_amd64.zip
