@@ -25,7 +25,7 @@ ARG ISTIOCTL_VERSION=${istio_version:-0.7.1}
 # ENV KOPS_RELEASE_ID=8410205
 
 
-RUN apk add --update --no-cache bash ca-certificates coreutils jq make py2-pip util-linux openssh openssl tree
+RUN apk add --update --no-cache bash ca-certificates coreutils jq git make py2-pip util-linux openssh openssl tree gettext curl
 
 # install terraform
 # install terraform
@@ -48,9 +48,9 @@ RUN chown ${UNPRIVILEDGED_USER}:users -R ${CWD}
 # kops
 #ADD elf/kops /usr/local/bin/kops
 #RUN chmod +x /usr/local/bin/kops
-RUN wget -O kops https://github.com/kubernetes/kops/releases/download/$(curl -s https://api.github.com/repos/kubernetes/kops/releases/latest | grep tag_name | cut -d '"' -f 4)/kops-linux-amd64
-&& chmod +x ./kops
-&& sudo mv ./kops /usr/local/bin/
+RUN wget -O kops https://github.com/kubernetes/kops/releases/download/$(curl -s https://api.github.com/repos/kubernetes/kops/releases/latest | grep tag_name | cut -d '"' -f 4)/kops-linux-amd64 \
+&& chmod +x ./kops \
+&& mv ./kops /usr/local/bin/
 
 # RUN apk add --no-cache --update ca-certificates vim curl jq && \
 #     KOPS_URL=$(curl -s https://api.github.com/repos/kubernetes/kops/releases/${KOPS_RELEASE_ID} | jq -r ".assets[] | select(.name == \"kops-linux-amd64\") | .browser_download_url") && \
@@ -74,10 +74,10 @@ RUN wget https://github.com/mikefarah/yaml/releases/download/${YAML_VERSION}/yam
 	apk --purge -v del openssl ca-certificates && \
 	rm /var/cache/apk/*
 
-RUN curl -fsSLo istio.tar.gz https://github.com/istio/istio/releases/download/$ISTIOCTL_VERSION/istio-$ISTIOCTL_VERSION-linux.tar.gz \
+RUN wget -O istio.tar.gz https://github.com/istio/istio/releases/download/$ISTIOCTL_VERSION/istio-$ISTIOCTL_VERSION-linux.tar.gz \
   && tar -xzf istio.tar.gz \
-  && mv istio-$ISTIOCTL_VERSION istio \
-  && rm istio.tar.gz && chmod +x /istio/bin/istioctl && ln -s /istio/bin/istioctl /usr/bin/
+  && mv istio-$ISTIOCTL_VERSION /istio \
+  && rm istio.tar.gz && chmod +x /istio/bin/istioctl && ln -s /istio/bin/istioctl /usr/local/bin/
 
 
 ENTRYPOINT ["/bin/sh"]
