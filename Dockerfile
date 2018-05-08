@@ -1,5 +1,5 @@
 FROM alpine:latest
-MAINTAINER "Stefan Cocora <stefan.cocora@googlemail.com>"
+MAINTAINER "Truyet Nguyen <minhtruyet@gmail.com>"
 
 # inspired by
 # https://github.com/hashicorp/docker-hub-images/blob/master/terraform/Dockerfile-light
@@ -10,6 +10,7 @@ ARG terraform_version
 ARG kubectl_version
 ARG helm_version
 ARG yaml_version
+ARG istio_version
 ENV AWSCLI_VERSION=${awscli_version:-1.15.7}
 ENV TERRAFORM_VERSION=${terraform_version:-0.11.7}
 # ENV TERRAFORM_SHA256SUM=b786c0cf936e24145fad632efd0fe48c831558cc9e43c071fffd93f35e3150db
@@ -20,10 +21,11 @@ ENV KUBECTL_VERSION=${kubectl_version:-v1.10.1}
 ENV HELM_VERSION=${helm_version:-v2.8.2}
 ENV YAML_VERSION=${yaml_version:-1.13.1}
 ENV YAML_SHASUM=28308a7231905030a62f20c92d41513e570d24f1984c1864198cbc4e039d3bec
+ARG ISTIOCTL_VERSION=${istio_version:-0.7.1}
 # ENV KOPS_RELEASE_ID=8410205
 
 
-RUN apk add --update --no-cache bash ca-certificates coreutils git jq make py2-pip util-linux openssh openssl tree
+RUN apk add --update --no-cache bash ca-certificates coreutils jq make py2-pip util-linux openssh openssl tree
 
 # install terraform
 # install terraform
@@ -71,5 +73,11 @@ RUN wget https://github.com/mikefarah/yaml/releases/download/${YAML_VERSION}/yam
   sha256sum /usr/local/bin/yaml | grep $YAML_SHASUM && \
 	apk --purge -v del openssl ca-certificates && \
 	rm /var/cache/apk/*
+
+RUN curl -fsSLo istio.tar.gz https://github.com/istio/istio/releases/download/$ISTIOCTL_VERSION/istio-$ISTIOCTL_VERSION-linux.tar.gz \
+  && tar -xzf istio.tar.gz \
+  && mv istio-$ISTIOCTL_VERSION istio \
+  && rm istio.tar.gz && chmod +x /istio/bin/istioctl && ln -s /istio/bin/istioctl /usr/bin/
+
 
 ENTRYPOINT ["/bin/sh"]
